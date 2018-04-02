@@ -1,5 +1,5 @@
-VERSION ?= 3.94
+VERSION ?= 3.95
 REPO    ?= lalyos/upx
 
 build:
-	docker build -t $(REPO):$(VERSION) .
+	docker build --tag=$(REPO):v$(VERSION) --build-arg=UPX_VER=$(VERSION) .
