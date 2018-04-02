@@ -20,9 +20,21 @@ RUN curl -LO http://www.7-zip.org/a/lzma${LZMA_VER}.7z \
 ENV UPX_LZMADIR /
 
 ENV UPX_UCLDIR=/ucl-${UCL_VER}
-ENV UPX_VER 3.94
-RUN curl -LO https://github.com/upx/upx/releases/download/v${UPX_VER}/upx-${UPX_VER}-src.tar.xz \
-    && unxz upx-${UPX_VER}-src.tar.xz  \
+ARG UPX_VER=3.95
+
+RUN [[ "$UPX_VER" = "3.95" ]] || exit 0; \
+    curl -L https://github.com/upx/upx/archive/devel.tar.gz | tar zx \
+    && curl -L https://github.com/upx/upx-lzma-sdk/archive/v3.94.tar.gz | tar zx \
+    && mv upx-devel upx-${UPX_VER}-src \
+    && cd upx-${UPX_VER}-src \
+    && mv ../upx-lzma-sdk-3.94/* src/lzma-sdk \
+    && sed -i "/addLoad/ s/NULL/(char*)NULL/" src/packer.cpp \
+    && sed -i.bak -e 's|-print0|-type f -iname "*.o" -prune -o -type f -iname "*.out" -prune -o -print0|' ./src/stub/scripts/check_whitespace.sh \
+    && make all
+
+RUN [[ ! "$UPX_VER" = "3.95" ]] || exit 0; \
+    curl -LO https://github.com/upx/upx/releases/download/v${UPX_VER}/upx-${UPX_VER}-src.tar.xz \
+    && unxz upx-${UPX_VER}-src.tar.xz \
     && tar -xvf upx-${UPX_VER}-src.tar \
     && cd upx-${UPX_VER}-src \
     && sed -i "/addLoad/ s/NULL/(char*)NULL/" src/packer.cpp \
