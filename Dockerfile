@@ -1,7 +1,5 @@
-FROM lalyos/alpine-build:edge AS upx-builder
-RUN apk update
-RUN apk upgrade
-RUN apk add -U zlib-dev xz-dev curl perl p7zip bash
+FROM alpine:3.7 AS upx-builder
+RUN apk -U add build-base zlib-dev xz-dev curl perl p7zip bash
 
 ENV LDFLAGS=-static
 
